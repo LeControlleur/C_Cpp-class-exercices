@@ -1,0 +1,31 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/wait.h>
+
+int main(int argc, char *argv[])
+{
+    //  Récupération du nom du fichier
+    char *nom_fichier, *cwd;
+
+    cwd = getcwd(NULL, 0);
+
+    printf("Veuillez entrer le nom du fichier : ");
+    scanf("%s", nom_fichier);
+    
+    strcat(cwd, "/");
+    strcat(cwd, nom_fichier);
+
+    char *arguments[] = {"emacs", cwd, NULL};
+
+    // Lancement de la commande
+    if (execv("/usr/bin/emacs", arguments) == -1)
+    {
+        perror("execv");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}

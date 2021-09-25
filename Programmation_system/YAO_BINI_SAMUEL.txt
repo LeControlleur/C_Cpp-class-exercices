@@ -1,0 +1,54 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+
+//  On définit une fonction de création de processus
+pid_t creation_processus(void)
+{
+    pid_t pid;
+    do
+    {
+        pid = fork();
+    } while ((pid == -1) && (errno == EAGAIN));
+    return pid;
+}
+
+
+//  Fonction exécutée par le processus fils
+void processus_fils(void)
+{
+    printf("Je suis le fils\n");
+}
+
+//  Fonction exécutée par le processus père
+void processus_pere(int child_pid)
+{
+    printf("Je suis le père\n");
+}
+
+
+int main(void)
+{
+    //  On crée un nouveau processus
+    pid_t pid = creation_processus();
+
+    //  On vérifie si le processus est le père ou le fils
+    switch (pid)
+    {
+    //  On vérifie si on a une erreur de memoire
+    case -1:
+        perror("fork");
+        return EXIT_FAILURE;
+        break;
+    //  Si on est dans le processus fils
+    case 0:
+        processus_fils();
+        break;
+    //  Si on est dans le processus père
+    default:
+        processus_pere(pid);
+        break;
+    }
+    return EXIT_SUCCESS;
+}

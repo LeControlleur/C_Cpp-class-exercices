@@ -1,0 +1,57 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/wait.h>
+#include <time.h>
+
+int main()
+{
+    printf("Je suis le père.\n");
+
+    //  On compte le temps au depart
+    time_t start, end;
+    int cpu_time_used;
+    int r;
+
+    start = time(NULL);
+
+    pid_t pid;
+
+    for (int i = 1; i < 6; i++) // loop will run n times (n=5)
+    {
+        do
+        {
+            pid = fork();
+        } while ((pid == -1) && (errno == EAGAIN));
+
+        switch (pid)
+        {
+        //  On vérifie si on a une erreur de memoire
+        case -1:
+            perror("fork");
+            return EXIT_FAILURE;
+            break;
+        //  Si on est dans le processus fils
+        case 0:
+            printf("Je suis le fils %d.\n", i);
+            srand((unsigned)time(&start));
+            r = rand() % 10;
+            sleep(r);
+            return EXIT_SUCCESS;
+            break;
+        //  Sinon on est dans le processus père
+        default:
+            if (wait(NULL) == -1)
+            {
+                perror("wait :");
+            }
+            break;
+        }
+    }
+
+    end = time(NULL);
+    cpu_time_used = end - start;
+
+    printf("\nLe programme a tourné pendant %d secondes.\n", cpu_time_used);
+}

@@ -1,0 +1,26 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/wait.h>
+
+int main(int argc, char *argv[])
+{
+    //  Récupération du repertoire courant
+    char *cwd;
+    cwd = getcwd(NULL, 0);
+
+    //  Récupération du repertoire cible
+    char *r = argv[1];
+
+    char *arguments[] = {"cp", "-r", cwd, r, NULL};
+
+    /* Lancement de la commande */
+    if (execv("/bin/cp", arguments) == -1)
+    {
+        perror("execv");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
